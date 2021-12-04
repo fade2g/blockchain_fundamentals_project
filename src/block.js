@@ -68,9 +68,10 @@ class Block {
         return new Promise((resolve, reject) => {
             // Resolve with the data if the object isn't the Genesis block
             if (self.height === 0) {
-                reject('genesis block does not have any transactions');
+                resolve('genesis block does not have any transactions');
             }
-            resolve(JSON.parse(hex2ascii(this.body)));
+            const body = hex2ascii(self.body);
+            resolve(JSON.parse(body));
         });
     }
 
