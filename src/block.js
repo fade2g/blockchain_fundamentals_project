@@ -22,11 +22,16 @@ class Block {
 		this.time = 0;                                              // Timestamp for the Block creation
 		this.previousBlockHash = null;                              // Reference to the previous Block Hash
     }
+
+    calculateHash() {
+        const {originalHash, ...blockWithoutHash} = this;
+        return SHA256(JSON.stringify(blockWithoutHash)).toString();
+    }
     
     /**
      *  validate() method will validate if the block has been tampered or not.
      *  Been tampered means that someone from outside the application tried to change
-     *  values in the block data as a consecuence the hash of the block should be different.
+     *  values in the block data as a consequence the hash of the block should be different.
      *  Steps:
      *  1. Return a new promise to allow the method be called asynchronous.
      *  2. Save the in auxiliary variable the current hash of the block (`this` represent the block object)
@@ -34,18 +39,15 @@ class Block {
      *  4. Compare if the auxiliary hash value is different from the calculated one.
      *  5. Resolve true or false depending if it is valid or not.
      *  Note: to access the class values inside a Promise code you need to create an auxiliary value `let self = this;`
+     *
+     *  @returns {Promise] Promise tht resolves to true, if the hash of the block data is still the same
      */
-    validate() {
+    async validate() {
         let self = this;
         return new Promise((resolve, reject) => {
             // Save in auxiliary variable the current block hash
-                                            
-            // Recalculate the hash of the Block
-            // Comparing if the hashes changed
-            // Returning the Block is not valid
-            
-            // Returning the Block is valid
-
+            const newHash = this.calculateHash();
+            resolve(newHash === this.hash);
         });
     }
 
@@ -58,13 +60,18 @@ class Block {
      *  3. Resolve with the data and make sure that you don't need to return the data for the `genesis block` 
      *     or Reject with an error.
      */
-    getBData() {
+    async getBData() {
         // Getting the encoded data saved in the Block
         // Decoding the data to retrieve the JSON representation of the object
         // Parse the data to an object to be retrieve.
-
-        // Resolve with the data if the object isn't the Genesis block
-
+        const self = this;
+        return new Promise((resolve, reject) => {
+            // Resolve with the data if the object isn't the Genesis block
+            if (self.height === 0) {
+                reject('genesis block does not have any transactions');
+            }
+            resolve(JSON.parse(hex2ascii(this.body)));
+        });
     }
 
 }

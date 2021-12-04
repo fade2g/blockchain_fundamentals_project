@@ -9,13 +9,14 @@ class BlockchainController {
     //The constructor receive the instance of the express.js app and the Blockchain class
     constructor(app, blockchainObj) {
         this.app = app;
-        this.blockchain = blockchainObj;
+        /** @type Blockchain */ this.blockchain = blockchainObj;
         // All the endpoints methods needs to be called in the constructor to initialize the route.
         this.getBlockByHeight();
         this.requestOwnership();
         this.submitStar();
         this.getBlockByHash();
         this.getStarsByOwner();
+        this.getChainValidity();
     }
 
     // Enpoint to Get a Block by Height (GET Endpoint)
@@ -53,7 +54,7 @@ class BlockchainController {
         });
     }
 
-    // Endpoint that allow Submit a Star, yu need first to `requestOwnership` to have the message (POST endpoint)
+    // Endpoint that allow Submit a Star, you need first to `requestOwnership` to have the message (POST endpoint)
     submitStar() {
         this.app.post("/submitstar", async (req, res) => {
             if(req.body.address && req.body.message && req.body.signature && req.body.star) {
@@ -114,6 +115,12 @@ class BlockchainController {
                 return res.status(500).send("Block Not Found! Review the Parameters!");
             }
             
+        });
+    }
+
+    getChainValidity() {
+        this.app.get("/chain/validity", async (req, res) => {
+            return res.status(200).json(await this.blockchain.validateChain());
         });
     }
 
