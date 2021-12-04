@@ -24,8 +24,7 @@ class Block {
     }
 
     calculateHash() {
-        const {originalHash, ...blockWithoutHash} = this;
-        return SHA256(JSON.stringify(blockWithoutHash)).toString();
+        return SHA256(JSON.stringify(this)).toString();
     }
     
     /**
