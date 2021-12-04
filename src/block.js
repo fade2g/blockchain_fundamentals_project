@@ -23,8 +23,12 @@ class Block {
 		this.previousBlockHash = null;                              // Reference to the previous Block Hash
     }
 
-    calculateHash() {
-        return SHA256(JSON.stringify(this)).toString();
+    /**
+     * Updates/replaces the hash of the block
+     */
+    updateHash() {
+        this.hash = null;
+        this.hash = SHA256(JSON.stringify(this)).toString();
     }
     
     /**
@@ -44,9 +48,9 @@ class Block {
     async validate() {
         let self = this;
         return new Promise((resolve, reject) => {
+            const currentHash = self.hash;
             // Save in auxiliary variable the current block hash
-            const newHash = this.calculateHash();
-            resolve(newHash === this.hash);
+            resolve(currentHash === this.hash);
         });
     }
 

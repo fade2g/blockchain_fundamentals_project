@@ -65,15 +65,15 @@ class Blockchain {
     _addBlock(block) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            const chainValidity = await self.validateChain();
-            if (chainValidity.length > 0) {
+            const validationErrors = await self._validateBlocks();
+            if (validationErrors.length > 0) {
                 reject('The chain is broken');
             }
             const previousBlock = await self.chain[self.height];
             block.height = self.height + 1;
             block.previousBlockHash = previousBlock && previousBlock.hash;
             block.time = new Date().getTime().toString().slice(0, -3);
-            block.hash = block.calculateHash();
+            block.updateHash();
             self.chain.push(block);
             self.height++;
             resolve(block);
@@ -145,7 +145,7 @@ class Blockchain {
             // try to add the block. If it fails, it means the blockchain is broken
             self._addBlock(newBlock)
                 .then(addedBlock => resolve(addedBlock))
-                .catch(() => reject('the chain is broken, adding starts not possible'));
+                .catch(() => reject('The chain is broken, adding stars not possible'));
         });
     }
 
@@ -232,23 +232,23 @@ class Blockchain {
      * @private
      */
     async _validateBlocks() {
-        const errorLog = [];
-        return Promise.all(this.chain.map(b => {
-            return new Promise(async (res, rej) => {
-                const blockValid = b.validate();
+        const blockPromises = this.chain.map(block => {
+            return new Promise(async (resolve, reject) => {
+                const blockValid = block.validate();
                 if (!blockValid) {
-                    errorLog.push(`Block ${b.hash} is not valid`);
+                    resolve(`Block ${block.hash} is not valid`);
                 }
                 // check if the previous block can be found based on the hash value of the block
-                if (b.height > 0) {
-                    const previousBlock = await this.getBlockByHash(b.previousBlockHash);
+                if (block.height > 0) {
+                    const previousBlock = await this.getBlockByHash(block.previousBlockHash);
                     if (previousBlock === null) {
-                        errorLog.push(`Block ${b.hash} misses previous block ${b.previousBlockHash}`);
+                        resolve(`Block ${block.hash} misses previous block ${block.previousBlockHash}`);
                     }
                 }
-                res();
+                resolve(null);
             })
-        })).then(() => errorLog);
+        });
+        return Promise.all(blockPromises).then(errors => errors.filter(e => e != null));
     }
 }
 
