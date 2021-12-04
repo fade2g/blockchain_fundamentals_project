@@ -1,5 +1,46 @@
 # Private Blockchain Application
 
+## Documentation of implemented application
+### Request genesisblock
+![Request: http://localhost:8000/block/0 ](./documentation/screenshot_00_genesisBlock.png)
+
+### Request validation
+Request message to be signed based on bitcoin testnet wallet 
+![Request: http://localhost:8000/requestValidation](./documentation/screenshot_01_requestValidation.png)
+
+The returned message to be signed includes the wallet address, a timestamp and the "functionality" of the star registry 
+
+### Signed message from bitcoint testnet
+![](documentation/screenshot_02_signedBitcoinMessage.png)
+
+The message produced by the requestValidation call has been signed by the bitcoin testnet wallet. The signed message includes the timestamp.
+
+### Submitted start
+Stars are submitted by adding the details and data relating to the user submitting, i.e. the signed message.
+
+![Request: http://localhost:8000/submitStar](./documentation/screenshot_03_submitStar01.png)
+Example of submitting a star to the blockchain. The request contains the signed message, wallet address the message itself as well as the information regarding the star to be submitted.
+The response returns the newly created block with it's body encoded in a hash and the previous block's hash (besides other information).
+
+### Submit star with expired message
+If the user submits a star, but the message created by requestValidation and signed by the bitcoin wallet is too old. the star is rejected:
+![Request: http://localhost:8000/submitStar](./documentation/screenshot_03_submitStar_expired.png)
+
+### Validate chain
+The blockchain is validated everytime a block is added. Validation can also be requested independently from the additions of a star:
+![Request: http://localhost:8000/validity](documentation/screenshot_04_validate_chain.png)
+
+### Get Blocks by address
+The request returns a list of stars that have been submitted by the given wallet address.
+![Request: http://localhost:8000/blocks/{walletAddress}](documentation/screenshot_05_get_blocks_by_address.png).
+
+Only the star data (block body) and the owner are returned, not the other information of the block's head
+
+
+## Original requirements/assignment from udacity
+
+
+
 You are starting your journey as a Blockchain Developer, this project allows you to demonstrate
 that you are familiarized with the fundamentals concepts of a Blockchain platform.
 Concepts like:
