@@ -27,8 +27,10 @@ class Block {
      * Updates/replaces the hash of the block
      */
     updateHash() {
-        this.hash = null;
-        this.hash = SHA256(JSON.stringify(this)).toString();
+        this.hash = SHA256(JSON.stringify({
+            ...this,
+            hash: null
+        })).toString();
     }
     
     /**
